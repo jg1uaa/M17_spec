@@ -1,57 +1,57 @@
-Recommendation for the codeplug structure
-*****************************************
+コードプラグの推奨仕様
+**********************
  
-Introduction
-############
+はじめに
+########
 
-Codeplugs are ordinary text files with *.m17* extension. They provide an information on:
+コードプラグは拡張子が *.m17* となる、テキストファイルである。以下の情報が含まれている:
 
- * channel banks
- * channel frequencies
- * destination IDs
- * transmission mode
- * payload type
- * encryption mode
+ * チャネルのバンク
+ * チャネルの周波数
+ * 宛先 ID
+ * モード
+ * ペイロード種別
+ * 暗号化
 
-Codeplugs should be human-readable and easily editable with common text editors.
+コードプラグは可読性があり、一般的なテキストエディタで編集可能なものとする。
 
-Codeplug file structure
-#######################
+コードプラグファイルの構造
+##########################
 
-We recommend using YAML for the codeplug files.
+コードプラグの記述には YAML を使用する。
 
-Keywords
---------
+キーワード
+----------
 
 **codeplug:**
   **author:**
-    String - Codeplug author, max 16 characters
+    文字列 - コードプラグの作者、最大 16 文字
   **version:**
-    Date and time in YYYY-MM-DDTHH:MM:SS format    
+    日付と時刻 YYYY-MM-DDTHH:MM:SS 形式
 
 **bank:**
   **name:**
-    String - Channel bank name, 16 characters maximum
+    文字列 - チャネルバンクの名称、最大 16 文字
 
 **channel:** 
   **name:**
-    String - Channel name, 16 characters maximum
+    文字列 - チャネルの名称、最大 16 文字
   **descr:**
-    String - Channel Description, 16 characters maximum
+    文字列 - チャネルの説明、最大 16 文字
   **freq_rx:**
-    Integer - Channel RX Frequency in Hz
+    整数 - チャネルの受信周波数 (Hz)
   **freq_tx:**
-    Integer - Channel TX Frequency in Hz
+    整数 - チャネルの送信周波数 (Hz)
   **mode:**
-    Integer - Channel mode. Valid modes are: 0 - Analog, 1 - Digital Voice, 2 - Digital Data, 3 - Digital Voice and Data
+    整数 - モード (0〜3) 0 - アナログ, 1 - デジタル音声, 2 - デジタルデータ, 3 - デジタル音声とデータ
   **encr:**
-    Integer - Is encryption enabled? 0 for no encryption, 1 - AES256, 2 - scrambler etc. (refer to M17_spec for details)
+    整数 - 暗号化の有無および種別 (0〜2) 0 暗号化なし, 1 - AES256, 2 - scrambler など (詳しくは M17_spec を参照)
   **nonce:**
-    String - 14-byte hex value without leading 0x. nonce for ciphers or initial LFSR value for scrambler
+    文字列 - 14 桁の 16 進数 (ただし先頭に 0x はつけない) 暗号化におけるノンス値もしくは scrambler での LFSR 初期値
   **gps:**
-    Boolean - If true, and mode value enables digital data, gps data will be transferred along with payload
+    ブール値 - モードがデジタルデータでかつこの値が true の場合は、GPS データがペイロードとなる
 
-Example Codeplug
+コードプラグの例
 ################
 
 ::

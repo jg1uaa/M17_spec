@@ -1,32 +1,32 @@
-M17 RF Protocol: Summary
+M17 RF Protocol: 要約
 ========================
 
-M17 is an RF protocol that is:
+M17 とは以下のような無線通信 (RF) プロトコルである:
 
-* Completely open: open specification, open source code, open source
-  hardware, open algorithms. Anyone must be able to build an M17 radio
-  and interoperate with other M17 radios without having to pay anyone
-  else for the right to do so.
-* Optimized for amateur radio use.
-* Simple to understand and implement.
-* Capable of doing the things hams expect their digital protocols to
-  do:
+* 完全にオープンであること: 仕様が公開され、オープンソースコードであり、
+  オープンソースハードウェアであり、アルゴリズムも公開されている。
+  M17 無線機の製造および他の M17 無線機と相互運用することは誰でも行うこと
+  ができ、それに対する支払いは要求されない。
+* アマチュア無線用途に最適化されている。
+* 理解と実装が容易である。  
+* アマチュア無線家がデジタルプロトコルに求める、以下の機能を実現できる。
 
-  * Voice (eg: DMR, D-Star, etc)
-  * Point to point data (eg: Packet, D-Star, etc)
-  * Broadcast telemetry (eg: APRS, etc)
-  * Extensible, so more capabilities can be added over time.
+  * 音声 (例: DMR, D-Star など)
+  * データ (例: パケット, D-Star など)
+  * テレメトリ (例: APRS など)
+  * 拡張性 (将来における機能追加の余地がある)
 
-To do this, the M17 protocol is broken down into three protocol layers, like a network:
+この目的を果たすため、M17 プロトコルは以下の三つの階層に分かれている。
 
-#. Physical Layer: How to encode 1s and 0s into RF. Specifies RF
-   modulation, symbol rates, bits per symbol, etc.
-#. Data Link Layer: How to packetize those 1s and 0s into usable
-   data. Packet vs Stream modes, headers, addressing, etc.
-#. Application Layer: Accomplishing activities. Voice and data
-   streams, control packets, beacons, etc.
+#. 物理層: 1 や 0 のビット列を RF にエンコードする部分。
+   変調方式、シンボルレート、ビットとシンボルの対応などについて。
+#. データリンク層: 実際のデータと、パケット化された 1 や 0 のビット列との
+   変換を行う部分。
+   Packet/Stream モード、ヘッダ、アドレスなどについて。
+#. アプリケーション層: 目的を達成する部分。
+   音声やデータストリーム、制御パケット、ビーコン等について。
 
-This document attempts to document these layers.
+本文書は、これらの階層を説明するために存在する。
 
 .. [TETRA] Dunlop, John; Girma, Demessie; Irvine, James "Digital
            Mobile Communications and the TETRA System" Wiley 1999,

@@ -1,10 +1,10 @@
-Glossary
+用語
 ========
 
-.. glossary::
+.. 用語::
 
    ECC
-     Error Correcting Code
+     誤り訂正符号 (Error Correcting Code)
 
    FEC
-      Forward Error Correction
+      前方誤り訂正 (Forward Error Correction)
