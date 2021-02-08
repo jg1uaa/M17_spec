@@ -1,143 +1,147 @@
-M17 Internet Protocol (IP) Networking
-=====================================
+M17 インターネットプロトコル (IP) ネットワーク
+==============================================
 
-Digital modes are commonly networked together through linked repeaters using IP networking.
+デジタルモードにおいては、レピーターをインターネット (IP) に接続してネットワークを
+構築することが一般的である。
 
-For commercial protocols like DMR, this is meant for linking metropolitan
-and state networks together and allows for easy interoperability between
-radio users.
-Amateur Radio uses this capability for creating global communications
-networks for all imaginable purposes, and makes 'working the world' with
-an HT possible.
+DMR のような商用プロトコルにおいては、都市レベルと州レベルのネットワークを接続し、
+無線を使用するユーザ間の相互運用を容易にしている。
+アマチュア無線においてはこの機能を全世界とのコミュニケーションを行うための
+ネットワークを作るために使用し、ハンディ機一つで「世界に働きかける」という理想を
+目指す。
 
-M17 is designed with this use in mind, and has native IP framing to support it.
+M17 はこれを念頭に置いた設計を行っており、IP への対応を有している。
 
-In competing radio protocols, a repeater or some other RF to IP bridge
-is required for linking, leading to the use of hotspots (tiny simplex
-RF bridges).
-
-The TR-9 and other M17 radios may support IP networking directly, such
-as through the ubiquitous ESP8266 chip or similar. This allows them to
-skip the RF link that current hotspot systems require, finally bringing
-to fruition the "Amateur digital radio is just VoIP" dystopian future
-we were all warned about.
+競合する無線通信規格においては、リピーターもしくは何らかの RF〜IP ブリッジを
+接続のために必要とし、ホットスポット (単方向の RF ブリッジ) の使用に至っている。
 
 
-Standard IP Framing
+TR-9 や他の M17 無線機は、よく使われている ESP8266 やこれと似たようなチップにより
+IP ネットワークへ直接接続することができる。これは、現在において必要とされる
+ホットスポットへの無線接続をスキップすることで、「アマチュア無線における
+デジタル音声通信はただの VoIP と変わらない」と批判される未来を招く危険を
+抱えていることに注意しておく必要がある。
+
+標準 IP フレーム
 -------------------
 
-M17 over IP is big endian, consistent with other IP protocols.
-We have standardized on UDP port 17000, this port is recommended but not required.
-Later specifications may require this port.
+M17 over IP は他の IP プロトコルと一貫性を持たせるため、ビッグエンディアンを使用する。
+UDP のポート 17000 を使うことを標準とするが、これは推奨であり必須とはしない。
+しかし今後このポートの使用を要求する可能性はある。
 
-.. list-table:: Internet frame fields
+.. list-table:: IP フレーム構成
 
-   * - MAGIC
-     - 32 bits
-     - Magic bytes 0x4d313720 ("M17 ")
-   * - StreamID (SID)
-     - 16 bits
-     - Random bits, changed for each PTT or stream, but consistent from frame to frame within a stream
-   * - LICH
-     - sizeof(LICH)*8 bits
-     - A full LICH frame (dst, src, streamtype, nonce) as defined earlier
+   * - 識別子 (MAGIC)
+     - 32 ビット
+     - 定数 0x4d313720 ("M17 ")
+   * - ストリーム ID (SID)
+     - 16 ビット
+     - PTT ないしストリーム単位で変化する乱数、ただしストリーム内のフレーム間においては変化しない
+   * - LICH (リンク情報チャンネル、Link Information Channel)
+     - sizeof(LICH)*8 ビット
+     - LICH フレーム全体 (宛先、発信元、ストリーム種別、ノンス値)
    * - FN
      - 16 bits
-     - Frame number (exactly as would be transmitted as an RF stream frame, including the last frame indicator at (FN & 0x8000)
-   * - Payload
-     - 128 bits
-     - Payload (exactly as would be transmitted in an RF stream frame)
+     - フレーム番号 (RF ストリームフレームとして送信される番号、最終フレームを示すビットは (FN & 0x8000) にある)
+   * - ペイロード
+     - 128 ビット
+     - ペイロード (RF ストリームフレームとして送信される内容そのもの)
    * - CRC16
-     - 16 bits
-     - CRC for the entire packet, as defined earlier (TODO: specific link)
+     - 16 ビット
+     - パケット全体の CRC 値
 
 
-The CRC checksum must be recomputed after modification or re-assembly
-of the packet, such as when translating from RF to IP framing.
+RF→IP フレームへの変換など、パケットの内容が変更された場合や再構成が
+行われた場合は、CRC 値の再計算が必要となる。
 
-.. todo:: RF->IP & IP->RF bridging reassembly, UDP NAT punching, callsign routing lookup
+.. todo:: RF→IP および IP→RF ブリッジにおけるパケットの再構成、UDP NAT パンチング、コールサインによるルート検索
 
 .. points_of_contact N7TAE, W2FBI
 
-Control Packets
-----------------------
+制御パケット
+------------
 
-Reflectors use a few different types of control frames, identified by their magic:
+リフレクタは何種類かの、以下の識別子を持つ制御パケットを使用する:
 
-* *CONN* - Connect to a reflector
-* *ACKN* - acknowledge connection
-* *PING/PONG* - keepalives for the connection
-* *DISC* - Disconnect (client->reflector or reflector->client)
+* *CONN* - リフレクタへの接続
+* *ACKN* - 接続の承認
+* *PING/PONG* - 接続の維持 (キープアライブ)
+* *DISC* - 切断 (クライアント→リフレクタ もしくは リフレクタ→クライアント)
 
 CONN
 ~~~~~~~~~~~~~~~
 
-.. table :: Bytes of a CONN packet
+.. table :: CONN パケットの構成
 
   +-------+----------------------------------------------------------------------------------------------------------------+
-  | Bytes | Purpose                                                                                                        |
+  | バイト| 目的                                                                                                           |
   +=======+================================================================================================================+
-  | 0-3   | Magic - ASCII "CONN"                                                                                           |
+  | 0-3   | 識別子 - ASCII "CONN"                                                                                          |
   +-------+----------------------------------------------------------------------------------------------------------------+
-  | 4-9   | 6-byte 'From' callsign including module in last character (e.g. "A1BCD   D") encoded as per `Address Encoding` |
+  | 4-9   | `アドレスのエンコード` によってエンコードされた、送信元コールサイン ('From') およびモジュール                  |
+  |       | (モジュールは最後の文字に配置) (例: "A1BCD   D")                                                               |
   +-------+----------------------------------------------------------------------------------------------------------------+
-  | 10    | Module to connect to - single ASCII byte A-Z                                                                   |
+  | 10    | 接続先のモジュール 1 文字の ASCII (A-Z)                                                                        |
   +-------+----------------------------------------------------------------------------------------------------------------+
 
-.. todo:: it would ne nice to include the destination callsign in full rather than just the module - it's only an extra 5 bytes, and it would allow hosting multiple reflectors on one instance and maybe some other use cases where you want to be explicit about what you're connecting to
+.. todo:: 接続先はモジュールを示す文字ではなくコールサインも含める方が良いかもしれない - せいぜい 5 バイト増えるだけであり、一つのインスタンスに複数のリフレクタをホストさせる場合においてどこのリフレクタに対して接続するかを明確にすることができる
 
-A client sends this to a reflector to initiate a connection. The reflector replies with ACKN on successful linking, or NACK on failure.
+リフレクタへの接続を開始するために、クライアントが送信する。リフレクタは接続に成功した場合は ACKN で、失敗した場合は NACK で応答する。
 
 ACKN
 ~~~~~~~~~~~~~~~~~
 
-.. table :: Bytes of ACKN packet
+.. table :: ACKN パケットの構成
 
   +-------+----------------------------------------------------------------------------------------------------------------+
-  | Bytes | Purpose                                                                                                        |
+  | バイト| 目的                                                                                                           |
   +=======+================================================================================================================+
-  | 0-3   | Magic - ASCII "ACKN"                                                                                           |
+  | 0-3   | 識別子 - ASCII "ACKN"                                                                                          |
   +-------+----------------------------------------------------------------------------------------------------------------+
-  | 4-9   | 6-byte callsign including module in last character (e.g. "A1BCD   D") encoded as per `Address Encoding`        |
+  | 4-9   | `アドレスのエンコード` によってエンコードされた、送信元コールサイン ('From') およびモジュール                  |
+  |       | (モジュールは最後の文字に配置) (例: "A1BCD   D")                                                               |
   +-------+----------------------------------------------------------------------------------------------------------------+
 
 NACK
 ~~~~~~~~~~~~~~~~~
 
-.. table :: Bytes of NACK packet
+.. table :: NACK パケットの構成
 
   +-------+--------------------------------------------------------------------------------------------------------------------------+
-  | Bytes | Purpose                                                                                                                  |
+  | バイト| 目的                                                                                                                     |
   +=======+==========================================================================================================================+
-  | 0-3   | Magic - ASCII "NACK"                                                                                                     |
+  | 0-3   | 識別子 - ASCII "NACK"                                                                                                    |
   +-------+--------------------------------------------------------------------------------------------------------------------------+
 
 PONG
 ~~~~~~~~~~~~~~~~~
 
-.. table :: Bytes of PONG packet
+.. table :: PONG パケットの構成
 
   +-------+----------------------------------------------------------------------------------------------------------------+
-  | Bytes | Purpose                                                                                                        |
+  | バイト| 目的                                                                                                           |
   +=======+================================================================================================================+
-  | 0-3   | Magic - ASCII "PONG"                                                                                           |
+  | 0-3   | 識別子 - ASCII "PONG"                                                                                          |
   +-------+----------------------------------------------------------------------------------------------------------------+
-  | 4-9   | 6-byte 'From' callsign including module in last character (e.g. "A1BCD   D") encoded as per `Address Encoding` |
+  | 4-9   | `アドレスのエンコード` によってエンコードされた、送信元コールサイン ('From') およびモジュール                  |
+  |       | (モジュールは最後の文字に配置) (例: "A1BCD   D")                                                               |
   +-------+----------------------------------------------------------------------------------------------------------------+
 
-Upon receing a PING, the client replies with a PONG
+PING を受信したクライアントは、PONG 応答をすること
 
 DISC
 ~~~~~~~~~~~~~~~~~
 
-.. table :: Bytes of DISC packet
+.. table :: DISC パケットの構成
 
   +-------+----------------------------------------------------------------------------------------------------------------+
-  | Bytes | Purpose                                                                                                        |
+  | バイト| 目的                                                                                                           |
   +=======+================================================================================================================+
-  | 0-3   | Magic - ASCII "DISC"                                                                                           |
+  | 0-3   | 識別子 - ASCII "DISC"                                                                                          |
   +-------+----------------------------------------------------------------------------------------------------------------+
-  | 4-9   | 6-byte 'From' callsign including module in last character (e.g. "A1BCD   D") encoded as per `Address Encoding` |
+  | 4-9   | `アドレスのエンコード` によってエンコードされた、送信元コールサイン ('From') およびモジュール                  |
+  |       | (モジュールは最後の文字に配置) (例: "A1BCD   D")                                                               |
   +-------+----------------------------------------------------------------------------------------------------------------+
 
-Sent by either end to force a disconnection. Acknowledged with 4-byte packet "DISC" (without the callsign field)
+クライアントあるいはリフレクタのどちらからでも、切断を要求する側が送信する。
+受信した側は 4 バイトの (コールサインのフィールドが無い) "DISC" パケットを送信してアクノリッジとする。
